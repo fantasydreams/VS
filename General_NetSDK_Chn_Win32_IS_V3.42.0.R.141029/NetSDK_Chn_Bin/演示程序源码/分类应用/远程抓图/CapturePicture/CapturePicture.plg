@@ -1,0 +1,49 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: CapturePicture - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Debug/CapturePicture.res" /d "_DEBUG" /d "_AFXDLL" "F:\VS\General_NetSDK_Chn_Win32_IS_V3.42.0.R.141029\NetSDK_Chn_Bin\演示程序源码\分类应用\远程抓图\CapturePicture\CapturePicture.rc"" 
+Creating temporary file "C:\Users\Carol\AppData\Local\Temp\RSP30C0.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "CFG_RELEASE_HEADER" /Fp"Debug/CapturePicture.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"F:\VS\General_NetSDK_Chn_Win32_IS_V3.42.0.R.141029\NetSDK_Chn_Bin\演示程序源码\分类应用\远程抓图\CapturePicture\CapturePicture.cpp"
+"F:\VS\General_NetSDK_Chn_Win32_IS_V3.42.0.R.141029\NetSDK_Chn_Bin\演示程序源码\分类应用\远程抓图\CapturePicture\CapturePictureDlg.cpp"
+]
+Creating command line "cl.exe @C:\Users\Carol\AppData\Local\Temp\RSP30C0.tmp" 
+Creating temporary file "C:\Users\Carol\AppData\Local\Temp\RSP30C1.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "CFG_RELEASE_HEADER" /Fp"Debug/CapturePicture.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"F:\VS\General_NetSDK_Chn_Win32_IS_V3.42.0.R.141029\NetSDK_Chn_Bin\演示程序源码\分类应用\远程抓图\CapturePicture\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\Users\Carol\AppData\Local\Temp\RSP30C1.tmp" 
+Creating temporary file "C:\Users\Carol\AppData\Local\Temp\RSP30D2.tmp" with contents
+[
+DhDecode.lib dhnetsdk.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/CapturePicture.pdb" /debug /machine:I386 /out:"Debug/CapturePicture.exe" /pdbtype:sept 
+".\Debug\CapturePicture.obj"
+".\Debug\CapturePictureDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\CapturePicture.res"
+".\dhconfigsdk.lib"
+]
+Creating command line "link.exe @C:\Users\Carol\AppData\Local\Temp\RSP30D2.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+CapturePicture.cpp
+CapturePictureDlg.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+CapturePicture.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
