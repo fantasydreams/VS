@@ -1,50 +1,169 @@
 /*
 Carol 2014-12-01
 */
-#include <iostream>
-#include <windows.h>
-#include <cstdlib>
-#include <tchar.h>
-#include <conio.h>
 #include "header.h"
-#include <cmath>
+bool state[1000] = { 0 };//用于标记接收文件状态
+Coord rStand[4];//标准路由的坐标
+double stand[1000] = { 0 };
+const double AF[2][3] = { { 1, -1, 2 }, { 1, 2, -1 } };
+const double AH = 60.0;
+using namespace std;
 
-HANDLE hComm;
-OVERLAPPED m_ov;
-COMSTAT comstat;
-DWORD	m_dwCommEvents;
-
-void ReceiveChar();
-bool WriteChar(BYTE* m_szWriteBuffer, DWORD m_nToSend);
-
-bool ProcessErrorMessage(char* ErrorText)
+void Calcu(unsigned int tote)//计算位置坐标
 {
-	char *Temp = new char[200];
-	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL,
-		GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-		(LPTSTR)&lpMsgBuf,
-		0,
-		NULL
-		);
-	sprintf_s(Temp,sizeof(Temp), "WARNING:  %s Failed with the following error: \n%s\nPort: %d\n", (char*)ErrorText, lpMsgBuf, "com2");
-	MessageBox(NULL, LPCWSTR(Temp), _T("Application Error"), MB_ICONSTOP);
-	LocalFree(lpMsgBuf);
-	delete[] Temp;
-	return true;
+	unsigned int i = 0;
+	unsigned int si = 0;
+	double RSSI[4] = { 0 };
+	double Distance[4];
+	char* fgdata = new char[7];
+	FILE* fp = NULL;
+	fopen_s(&fp, "Data.txt", "r");
+	for (si; si < 1000; si++)
+	{
+		fseek(fp, 3, SEEK_CUR);
+		if (((si % 9) == 0) && (si != 0))
+		{
+			fseek(fp, 2, SEEK_CUR);
+			//cout<<"go\n";
+		}
+		fread(fgdata, 7, 1, fp);
+
+		double stz = (fgdata[0] - '0') * 10 + (fgdata[1] - '0');
+		stand[si] = stz + (fgdata[3] - '0') / 10.0 + (fgdata[4] - '0') / 100.0 +
+			(fgdata[5] - '0') / 1000.0 + (fgdata[6] - '0') / 10000.0;
+		//cout << stand[si];
+	}
+	fclose(fp);
+	
+	delete[] fgdata;
+	for (i;; i++)
+	{
+		if (state[i])
+		{
+			char fgetNo[5];
+			cout << "get rSSI" << endl;
+			GetRSSI(i, RSSI, fgetNo);//得到RSSI值
+			
+			state[i] = 0;
+			
+			GetDistance(Distance, RSSI, fgetNo);//将RSSI转换成距离
+			Coord get;
+			get = CalPoint(Distance, fgetNo);
+			cout << "NO:" << i<<endl;
+			cout << "X:" << get.x << endl << "Y:" << get.y << " " << endl;
+		}
+		if (i == tote)
+			i = 0;
+	}
 }
 
+void GetRSSI(unsigned int i, double* RSSI, char* fgetNo){
+	char fdata[8];
+	char fdname[5];
+	unsigned int itemp = i;//得到对应的记录文件
+	fdname[0] = itemp % 10 + '0'; itemp /= 10;
+	fdname[1] = itemp % 10 + '0'; itemp /= 10;
+	fdname[2] = itemp % 10 + '0'; itemp /= 10;
+	fdname[3] = itemp % 10 + '0'; 
+	fdname[4] = '\0';
+	FILE* dfp = NULL;
+	cout << "fileName is " <<fdname << endl;
+	
+	bool fRState[4] = { 0 };
+	unsigned char fni = 0;
+	if (fopen_s(&dfp, fdname, "r"))
+		cout << "Open is ok";
+	for (char dj = 0; dj<4; dj++){//得到对应的RSSI值
+		fread(fdata, sizeof(char), 7, dfp);
+		int RouNo = (fdata[0] - '0') + (fdata[1] - '0') * 10 + (fdata[2] - '0') * 100 + (fdata[3] - '0') * 1000;
+		RSSI[RouNo] = fdata[5];
+		if (!fRState[RouNo])
+		{
+			fni++;
+			fgetNo[fni] = RouNo;
+			fRState[RouNo] = 1;
+		}
 
-DWORD WINAPI MyThread1(LPVOID pParam)
-{
-	ReceiveChar();
-	return 0;
+	}
+	fclose(dfp);
+	fopen_s(&dfp, fdname, "w+");
+	//cout << "清空" << endl;
+	fclose(dfp);
+	fgetNo[0] = fni;
 }
 
-DWORD WINAPI MyThread2(LPVOID pParam)
+void GetDistance(double* Distance, double* RSSI, char* fgetNo){//RSSI转换成距离
+	for (char i = 1; i<=fgetNo[0]; i++){
+		Distance[fgetNo[i]] = RSSIToD(RSSI[fgetNo[i]]);
+	}
+}
+double RSSIToD(double RSSI){//将RSSI转换成distance
+	double fRssi = (RSSI*-1);
+	double fD = fRssi - stand[0];
+	unsigned int i = 0;
+	for (; i<1000; i++){
+		double sd = fRssi - stand[i];
+		if (sd>fD)
+			break;
+		fD = sd;
+	}
+	return (i - 1) / 100.0;
+}
+
+Coord CalPoint(double* distance, char* fgetNo){//计算出点的坐标
+	Coord Get;
+	if (fgetNo[0] == 4)
+		Get = CalPoin4(distance);
+	if (fgetNo[0] == 3)
+		Get = CalPoin3(distance, fgetNo);
+	if (fgetNo[0] == 2){
+		Get.x = (rStand[fgetNo[1]].x + rStand[fgetNo[2]].x) / 2;
+		Get.y = (rStand[fgetNo[1]].y + rStand[fgetNo[2]].y) / 2;
+	}
+	if (fgetNo[0] == 1){
+		Get.x = rStand[fgetNo[1]].x;
+		Get.y = rStand[fgetNo[1]].y;
+	}
+	return Get;
+}
+
+Coord CalPoin4(double* distance){
+	double B[3];
+	double x3 = rStand[3].x;
+	double y3 = rStand[3].y;
+	for (char i = 0; i<3; i++){
+		B[i] = (distance[i] * distance[i]) - (rStand[i].x*rStand[i].x)
+			- (rStand[i].y*rStand[i].y) + (x3*x3) + (y3*y3);
+	}
+	Coord Get;
+	Get.x = AF[0][0] * B[0] + AF[0][1] * B[1] + AF[0][2] * B[2];
+	Get.y = AF[1][0] * B[0] + AF[1][1] * B[1] + AF[1][2] * B[2];
+	Get.x = Get.x / AH;
+	Get.y = Get.y / AH;
+	return Get;
+}
+
+Coord CalPoin3(double* distance, char* fgetNo){
+	double A3[2][2] = { { (rStand[fgetNo[1]].x - rStand[fgetNo[3]].x), (rStand[fgetNo[1]].y - rStand[fgetNo[3]].y) },
+	{ (rStand[fgetNo[2]].x - rStand[fgetNo[3]].x), (rStand[fgetNo[2]].y - rStand[fgetNo[3]].y) } };
+	double A3Mod = A3[0][0] * A3[1][1] - A3[0][1] * A3[1][0];
+	double temp = A3[0][0];
+	A3[0][0] = A3[1][1];
+	A3[0][1] = -A3[0][1];
+	A3[1][0] = -A3[1][0];
+	double b1 = pow(distance[fgetNo[1]], 2) - pow(distance[fgetNo[3]], 2) - pow(rStand[fgetNo[1]].x, 2) - pow(rStand[fgetNo[1]].y, 2) + pow(rStand[fgetNo[3]].x, 2) + pow(rStand[fgetNo[3]].y, 2);
+	double b2 = pow(distance[fgetNo[2]], 2) - pow(distance[fgetNo[3]], 2) - pow(rStand[fgetNo[2]].x, 2) - pow(rStand[fgetNo[2]].y, 2) + pow(rStand[fgetNo[3]].x, 2) + pow(rStand[fgetNo[3]].y, 2);
+	Coord get;
+	get.x = A3[0][0] * b1 + A3[0][1] * b2;
+	get.x = get.x / (2 * A3Mod);
+	get.y = A3[1][0] * b1 + A3[1][1] * b2;
+	get.y = get.y / (2 * A3Mod);
+	return get;
+}
+
+/*
+
+DWORD WINAPI Comm::MyThread2(LPVOID pParam)
 {
 	while (hComm != INVALID_HANDLE_VALUE)              // 串口已被成功打开
 	{
@@ -55,314 +174,44 @@ DWORD WINAPI MyThread2(LPVOID pParam)
 		WriteChar(&d, 1);
 	}
 	return 0;
+} */
+
+DWORD WINAPI MyThread1(LPVOID pParam)
+{
+	Comm* Com = (Comm*)pParam;
+	Com->ReceiveChar();
+	return 0;
 }
 
-
-bool OpenPort(LPCWSTR portname)
+void main(int argv, char *argc[])
 {
-	hComm = CreateFile(portname,  //串口号
-		GENERIC_READ | GENERIC_WRITE,   //允许读和写
-		0,								//通讯设备必须以独占的方式打开
-		0,								//无安全保护机制
-		OPEN_EXISTING,					//通讯设备已存在
-		FILE_FLAG_OVERLAPPED,			//同步I/O              异步I/O是直接设置  0
-		0);								//通讯设备不能用模板打开
-	if (hComm == INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(hComm);
-		return FALSE;
-	}
-	else
-		return TRUE;
-}
-
-bool setuptimeout(DWORD ReadInterval, DWORD ReadTotalMultiplier, DWORD ReadTotalconstant, DWORD WriteTotalMultiplier, DWORD WriteTotalconstant)
-{
-	COMMTIMEOUTS timeouts;
-	timeouts.ReadIntervalTimeout = ReadInterval;
-	timeouts.ReadTotalTimeoutConstant = ReadTotalconstant;
-	timeouts.ReadTotalTimeoutMultiplier = ReadTotalMultiplier;
-	timeouts.WriteTotalTimeoutConstant = WriteTotalconstant;
-	timeouts.WriteTotalTimeoutMultiplier = WriteTotalMultiplier;
-	if (!SetCommTimeouts(hComm, &timeouts))
-	{
-		ProcessErrorMessage("SetCommTimeouts()");
-		return false;
-	}
-
-	else
-		return true;
-}
-
-
-bool setupdcb(int rate_arg)//设置DCB,先获取DCB配置，再设置，最后看是否设置//好
-{
-	DCB  dcb;
-	int rate = rate_arg;
-	memset(&dcb, 0, sizeof(dcb));//在一段内存块中填充某个给定的值，是对较大的结构//体或数组进行清零操作的一种最快方法
-	if (!GetCommState(hComm, &dcb))//获取当前DCB配置
-	{
-		ProcessErrorMessage("GetCommState()");
-		return FALSE;
-	}
-	// set DCB to configure the serial port
-	dcb.DCBlength = sizeof(dcb);
-	/* ---------- Serial Port Config ------- */
-	dcb.BaudRate = rate;
-	dcb.Parity = NOPARITY;
-	dcb.fParity = 0;
-	dcb.StopBits = ONESTOPBIT;
-	dcb.ByteSize = 8;
-	dcb.fOutxCtsFlow = 0;
-	dcb.fOutxDsrFlow = 0;
-	dcb.fDtrControl = DTR_CONTROL_DISABLE;
-	dcb.fDsrSensitivity = 0;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	dcb.fOutX = 0;
-	dcb.fInX = 0;
-	/* ----------------- misc parameters ----- */
-	dcb.fErrorChar = 0;
-	dcb.fBinary = 1;
-	dcb.fNull = 0;
-	dcb.fAbortOnError = 0;
-	dcb.wReserved = 0;
-	dcb.XonLim = 2;
-	dcb.XoffLim = 4;
-	dcb.XonChar = 0x13;
-	dcb.XoffChar = 0x19;
-	dcb.EvtChar = 0;
-	// set DCB
-	if (!SetCommState(hComm, &dcb))
-	{
-		ProcessErrorMessage("SetCommState()");
-		return false;
-	}
-
-	else
-		return true;
-}
-
-
-void ReceiveChar()
-{
-	BOOL  bRead = TRUE;
-	BOOL  bResult = TRUE;
-	DWORD dwError = 0;
-	DWORD BytesRead = 0;
-	char RXBuff;
-	char Buffer[60];
-	char i = 0;
-	int j = 0, flag = 0,n=1;
-	double distance, c ,sum = 0;
-	for (i;;i++)
-	{
-		bResult = ClearCommError(hComm, &dwError, &comstat);
-		// 在使用ReadFile 函数进行读操作前，应先使用ClearCommError函数清除错误
-
-		if (comstat.cbInQue == 0)// COMSTAT结构返回串口状态信息
-		{
-			//本文只用到了cbInQue成员变量，该成员变量的值代表输入缓冲区的字节数
-			Sleep(1000);
-			continue;
-		}
-		if (bRead)
-		{
-			bResult = ReadFile(hComm, // Handle to COMM port串口的句柄
-
-				&RXBuff,	// RX Buffer Pointer
-				// 读入的数据存储的地址，即读入的数据将存
-				//储在以该指针的值为首地址的一片内存区
-
-				1,		  // Read one byte要读入的数据的字节数,
-
-				&BytesRead, // Stores number of bytes read, 指向一个DWORD
-				//数值，该数值返回读操作实际读入的字节数
-
-				&m_ov);   		// pointer to the m_ov structure
-			// 重叠操作时，该参数指向一个OVERLAPPED结构，同步操作时，该参数为NULL
-			//printf("%c", RXBuff);
-
-			
-			if (j != 29)
-			{
-				Buffer[j++] = RXBuff;
-			}
-			else
-			{
-				//Buffer[j] = '\0';
-				//puts(Buffer);
-				j = 0;
-			}
-			if (j == 28)
-			{
-				
-				c =abs( Buffer[j]);
-				/*if (c < 0)
-					c = -c;*/
-				/*if (n > 1){
-					double fc = c - 58.7135;
-					double fn = fc * 0.2;
-					sum += fn;
-
-					std::cout << fn << "n:" << n-1 << "  " << "sum:" << sum << "  " << "agv:" << sum / (n-1)<< std::endl;
-				}
-				n++;*/
-				double fd = (c-58.7135 )/28.4246;
-				distance = pow(10, fd);
-				std::cout << distance<<std::endl;
-				
-				/*std::cout << c<<'\t';
-				sum += c;
-				std::cout <<"平均值"<< sum / n <<"sum"<<sum<<"\tn"<<n<< std::endl;
-				n++;*/
-				
-				if (n == 1000)
-					system("pasue");
-			}
-			if (!bResult)// 当ReadFile和WriteFile返回FALSE时，不一定就是操作失//败，线程应该调用GetLastError函数分析返回的结果
-			{
-				switch (dwError = GetLastError())
-				{
-				case ERROR_IO_PENDING:
-				{
-					bRead = FALSE;
-					break;
-				}
-				default:
-				{
-					break;
-				}
-				}
-			}
-			else
-			{
-				bRead = TRUE;
-			}
-		}  // close if (bRead)
-		if (!bRead)
-		{
-			bRead = TRUE;
-			bResult = GetOverlappedResult(hComm,	// Handle to COMM port
-				&m_ov,	// Overlapped structure
-				&BytesRead,		// Stores number of bytes read
-				TRUE); 			// Wait flag
-		}
-	}
-}
-
-
-bool WriteChar(BYTE* m_szWriteBuffer, DWORD m_nToSend)
-{
-	BOOL bWrite = TRUE;
-	BOOL bResult = TRUE;
-	DWORD BytesSent = 0;
-	HANDLE	m_hWriteEvent = NULL;
-	ResetEvent(m_hWriteEvent);
-	if (bWrite)
-	{
-		m_ov.Offset = 0;
-		m_ov.OffsetHigh = 0;
-		// Clear buffer
-		bResult = WriteFile(hComm,	// Handle to COMM Port, 串口的句柄
-
-			m_szWriteBuffer,	// Pointer to message buffer in calling finction
-			// 即以该指针的值为首地址的nNumberOfBytesToWrite
-			// 个字节的数据将要写入串口的发送数据缓冲区
-
-			m_nToSend,	// Length of message to send, 要写入的数据的字节数
-
-			&BytesSent,	 // Where to store the number of bytes sent
-			// 指向指向一个DWORD数值，该数值返回实际写入的字节数
-
-			&m_ov);	    // Overlapped structure
-		// 重叠操作时，该参数指向一个OVERLAPPED结构，
-		// 同步操作时，该参数为NULL
-		if (!bResult)  // 当ReadFile和WriteFile返回FALSE时，不一定就是操作失
-			//败，线程应该调用GetLastError函数分析返回的结果
-		{
-			DWORD dwError = GetLastError();
-			switch (dwError)
-			{
-			case ERROR_IO_PENDING: //GetLastError函数返回
-				//ERROR_IO_PENDING。这说明重叠操作还未完成
-			{
-				// continue to GetOverlappedResults()
-				BytesSent = 0;
-				bWrite = FALSE;
-				break;
-			}
-			default:
-			{
-				// all other error codes
-				// all other error codes
-				ProcessErrorMessage("WriteFile()");
-				break;
-			}
-			}
-		}
-	} // end if(bWrite)
-	if (!bWrite)
-	{
-		bWrite = TRUE;
-		bResult = GetOverlappedResult(hComm,	// Handle to COMM port
-			&m_ov,		// Overlapped structure
-			&BytesSent,		// Stores number of bytes sent
-			TRUE); 			// Wait flag
-
-		// deal with the error code
-		if (!bResult)
-		{
-			ProcessErrorMessage("GetOverlappedResults() in WriteFile()");
-		}
-	} // end if (!bWrite)
-
-	// Verify that the data size send equals what we tried to send
-	if (BytesSent != m_nToSend)
-	{
-		printf("WARNING: WriteFile() error.. Bytes Sent: %d; Message Length: %d\n", BytesSent, strlen((char*)m_szWriteBuffer));
-	}
-	return true;
-}
-
-
-
-void main(int argv,char *argc[])
-{
-	bool open;
-
+	
+	rStand[0].x = 0;
+	rStand[0].y = 0;
+	rStand[1].x = 0;
+	rStand[1].y =10;
+	rStand[2].x = 10;
+	rStand[2].y = 0;
+	rStand[3].x = 10;
+	rStand[3].y = 10;
 	/*std::cout << argv;
 	int i = 0;
 	while (i < argv)
 	{
-		std::cout << argc[i] << std::endl;
-		i++;
+	std::cout << argc[i] << std::endl;
+	i++;
 	}*/
-	//printcommand();
+
+	Comm Communica(_T("com3"),state);
 	
-	open = OpenPort(_T("com3"));
-	if (open)
-	{
-		std::cout << "open comport success" << std::endl;
-		if (setupdcb(38420))    //38240是波特率
-			printf("setupDCB success\n");
-		if (setuptimeout(0, 0, 0, 0, 0))
-			printf("setuptimeout success\n");
-	}
-	else
-		std::cout << "cannot open the com port" << std::endl;
-	SetCommMask(hComm, EV_RXCHAR); //当有字符在inbuf中时产生这个事件
-	//清除串口的所有操作
-	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT);
-	// 在读写串口之前，还要用PurgeComm()函数清空缓冲区
-	//PURGE_TXABORT	  中断所有写操作并立即返回，即使写操作还没有完成。
-	//PURGE_RXABORT	  中断所有读操作并立即返回，即使读操作还没有完成。
-	//PURGE_TXCLEAR	  清除输出缓冲区
-	//PURGE_RXCLEAR	  清除输入缓冲区
-	HANDLE hThread1 = CreateThread(NULL, 0, MyThread1, 0, 0, NULL);  //读线程
+	HANDLE hThread1 = CreateThread(NULL, 0, MyThread1, &Communica, 0, NULL);  //读线程
 	//HANDLE hThread2 = CreateThread(NULL, 0, MyThread2, 0, 0, NULL);  //写线程
-	Sleep(100000000);
-	CloseHandle(hThread1);
+	//state[1] = true;
+	Calcu(4);
+	CloseHandle(hThread1); 
 	//CloseHandle(hThread2);
+
+	Sleep(100000000);
 	
 	system("pause");
 }

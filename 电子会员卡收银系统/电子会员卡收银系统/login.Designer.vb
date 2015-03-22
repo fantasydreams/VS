@@ -142,7 +142,7 @@ Partial Class Login
         Me.database.Name = "database"
         Me.database.Size = New System.Drawing.Size(160, 21)
         Me.database.TabIndex = 10
-        Me.database.Text = "main"
+        Me.database.Text = "member"
         Me.database.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'Login

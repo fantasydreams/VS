@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C0AE30F3-5B29-4BFC-84E6-CC2FE6358BF3}</ProjectGuid>
-    <RootNamespace>practice</RootNamespace>
+    <ProjectGuid>{933BC7FE-17C7-488F-96ED-552EC3E8BAA8}</ProjectGuid>
+    <RootNamespace>DLL_Test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -64,10 +64,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="源.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="head.h" />
+    <ClInclude Include="..\..\Win32Project\Win32Project\Point.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

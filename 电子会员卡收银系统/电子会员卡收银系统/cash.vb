@@ -1,11 +1,13 @@
 ﻿Imports MySql.Data.MySqlClient
 
+
 Public Class PURCHASE
 
     Dim reader As MySql.Data.MySqlClient.MySqlDataReader
     Dim Command As MySql.Data.MySqlClient.MySqlCommand
     Dim comstr As String
     Public lineNum As Integer = 1
+
 
 
 
@@ -87,7 +89,7 @@ Public Class PURCHASE
             Dr.CommandType = CommandType.Text
             Dim MR As MySqlDataReader
             MR = Dr.ExecuteReader()
-            Dim temp As String
+            Dim temp As String = ""
             Dim flag As Boolean = False
             If MR.HasRows Then
                 flag = True
@@ -103,16 +105,23 @@ Public Class PURCHASE
                 P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
                 P_Num.Text = Data.Rows(lineNum - 1).Cells(4).Value
                 temp = MR.Item(1)
+
+                'If Data.Rows.Count Mod 2 = 0 Then
+                '    Data.Rows(Data.Rows.Count).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                'Else
+                '    Data.Rows(Data.Rows.Count).DefaultCellStyle.BackColor = Color.White
+                'End If
                 lineNum += 1
                 P_id_I_B.Text = ""
+
             End If
-            MR.Close()
-            If flag = True Then
-                Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
-                changeMoney()
-                calculatePronum()
+                MR.Close()
+                If flag = True Then
+                    Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
+                    changeMoney()
+                    calculatePronum()
+                End If
             End If
-        End If
 
     End Sub
 
@@ -177,5 +186,6 @@ Public Class PURCHASE
             e.KeyChar = Chr(0)
         End If
     End Sub
+
 
 End Class
