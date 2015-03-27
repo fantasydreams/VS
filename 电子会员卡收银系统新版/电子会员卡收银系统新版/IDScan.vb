@@ -30,7 +30,7 @@ Public Class IDScan
             GetUserInfoFlag = False
         End If
         Dim str As String = "select name from user where id = " + ID_I.Text.ToString()
-        MsgBox(str)
+        ' MsgBox(str)
         Try
             Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
             Dr.CommandType = CommandType.Text
@@ -44,11 +44,11 @@ Public Class IDScan
             Else
                 '这里填写未找到相关会员的信息
 
-                MsgBox("未找到相关会员！")
+                'MsgBox("未找到相关会员！")
 
             End If
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            'MsgBox(ex.ToString)
 
 
         End Try

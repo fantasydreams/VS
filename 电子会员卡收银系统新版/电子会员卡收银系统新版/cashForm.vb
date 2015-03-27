@@ -333,4 +333,27 @@ Public Class cash
             End If
         End If
     End Sub
+
+
+    Private Sub form_keypress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
+        If e.KeyChar = ChrW(27) Then
+            Dim messge As New MSG
+            messge.head.Text = "即将退出系统"
+            messge.msgP.Text = "按下enter退出系统，esc返回..."
+            messge.Show()
+        End If
+        If e.KeyChar = Chr(115) Then
+            Dim messge As New MSG
+            messge.head.Text = "F4"
+            messge.msgP.Text = "你按下了F4"
+            messge.Show()
+        End If
+        If e.KeyChar = Chr(116) Then
+            Dim messge As New MSG
+            messge.head.Text = "F5"
+            messge.msgP.Text = "你按下了F5"
+            messge.Show()
+        End If
+    End Sub
+
 End Class

@@ -164,7 +164,7 @@ Public Class Login
             Me.Hide()
             cash.Show()
         Else
-            MsgBox("请检查你的用户名密码！")
+            MSGBOX("请检查你的用户名密码！")
         End If
     End Sub
 
@@ -204,5 +204,13 @@ Public Class Login
         End Try
         ConcectDataIfBreak = False
     End Function
+
+    'when esc pressed,windows app close the sql connenction and close itself
+    Private Sub form_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            conn.Close()
+            Me.Close()
+        End If
+    End Sub
 
 End Class
