@@ -14,6 +14,7 @@ int main()
 	int n;
 	cin >> num >> n;
 	cout << Hex(num, n);
+	system("pause");
 	return 0;
 }
 
