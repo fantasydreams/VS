@@ -3,6 +3,8 @@ Imports System.Threading
 Imports System
 Imports System.Xml
 Imports System.Security
+Imports System.IO
+
 
 
 Public Class Login
@@ -16,6 +18,7 @@ Public Class Login
     Dim Sqlconnect As Boolean = False
     '    Dim runThread As Thread
     Dim KeepSqlAliveThread As Thread
+    Public shopID As Long = 0
 
 
     Public Sub connect()
@@ -23,11 +26,11 @@ Public Class Login
         ScreenWidth = Screen.PrimaryScreen.Bounds.Width
         Dim connStr As String
         If Not conn Is Nothing Then conn.Close()
-        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"112.74.105.67", "ming", "18883285787")
-
         connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "localhost", "root", "lsw19940816")
+        "112.74.105.67", "ming", "18883285787")
+
+        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+        '"localhost", "root", "lsw19940816")
 
         Try
             conn = New MySqlConnection(connStr)
@@ -62,6 +65,7 @@ Public Class Login
         key.Text = "请输入密码"
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
+        shopGet()  'getshop info
     End Sub
 
     Private Sub loginButton_Press(sender As Object, e As EventArgs) Handles loginButton.MouseDown
@@ -70,6 +74,65 @@ Public Class Login
     End Sub
     Private Sub loginButton_up(sender As Object, e As EventArgs) Handles loginButton.MouseUp
         loginButton.BackColor = temp
+    End Sub
+
+    Private Sub shopGet()
+        If My.Computer.FileSystem.DirectoryExists(".\config") Then
+            'MsgBox("存在")
+            'MsgBox(fs.ReadLine())
+            'MsgBox(fs.ReadLine)
+            If IO.File.Exists(".\config\data.ini") Then
+                'here get shopID and shopName
+                Dim fsr As New StreamReader(".\config\data.ini")
+                Dim temp As String = ""
+                temp = fsr.ReadLine()
+                'MsgBox(temp)
+
+                If temp = "" Then 'readid
+                    Dim Msgform As New MSG
+                    Msgform.head.Text = "error"
+                    Msgform.msgP.Text = "配置文件丢失，请重新配置"
+                    Msgform.Show()
+                    Exit Sub
+                Else
+                    shopID = Long.Parse(temp)
+                    'MsgBox(shopID.ToString)
+                End If
+                temp = fsr.ReadLine()
+                'MsgBox(temp)
+                If temp = "" Then  'readname
+                    Dim Msgform As New MSG
+                    Msgform.head.Text = "error"
+                    Msgform.msgP.Text = "配置文件丢失，请重新配置"
+                    Msgform.Show()
+                    Exit Sub
+                End If
+
+            Else
+                IO.File.Create(".\config\data.ini").Close()
+                'save config date into file
+
+
+            End If
+            If IO.File.Exists(".\config\readme.txt") Then
+            Else
+                IO.File.Create(".\config\readme.txt").Close()
+                Dim fsw As New StreamWriter(".\config\readme.txt")
+                fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
+                fsw.Close()
+                'save config date into file
+
+
+            End If
+
+        Else
+            My.Computer.FileSystem.CreateDirectory(".\config")
+            IO.File.Create(".\config\data.ini").Close()
+            IO.File.Create(".\config\readme.txt").Close()
+            Dim fsw As New StreamWriter(".\config\readme.txt")
+            fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
+            fsw.Close()
+        End If
     End Sub
 
 
@@ -164,7 +227,11 @@ Public Class Login
             Me.Hide()
             cash.Show()
         Else
-            MSGBOX("请检查你的用户名密码！")
+            'MSGBOX("请检查你的用户名密码！")
+            Dim form As New MSG
+            form.head.Text = "检查数据"
+            form.msgP.Text = "请检查你的用户名和密码"
+            form.Show()
         End If
     End Sub
 
@@ -179,11 +246,11 @@ Public Class Login
     Public Function ConcectDataIfBreak()
         Dim connStr As String
         If Not conn Is Nothing Then conn.Close()
-        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"112.74.105.67", "ming", "18883285787")
-
         connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "localhost", "root", "lsw19940816")
+        "112.74.105.67", "ming", "18883285787")
+
+        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+        '"localhost", "root", "lsw19940816")
 
         Try
             conn = New MySqlConnection(connStr)
@@ -206,11 +273,11 @@ Public Class Login
     End Function
 
     'when esc pressed,windows app close the sql connenction and close itself
+
     Private Sub form_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.Escape Then
-            conn.Close()
             Me.Close()
         End If
+       
     End Sub
-
 End Class

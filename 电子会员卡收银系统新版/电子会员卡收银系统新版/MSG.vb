@@ -28,4 +28,7 @@ Public Class MSG
 
 
 
+    Private Sub X_Click(sender As Object, e As EventArgs) Handles X.Click
+        Cancel_Button_Click(Me, e)
+    End Sub
 End Class

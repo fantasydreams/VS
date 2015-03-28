@@ -67,4 +67,7 @@ Public Class code
         Pur.flag = True
     End Sub
 
+    Private Sub code_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
 End Class

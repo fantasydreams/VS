@@ -211,6 +211,7 @@ Partial Class cash
         Me.ALL_N_P.Name = "ALL_N_P"
         Me.ALL_N_P.Size = New System.Drawing.Size(100, 61)
         Me.ALL_N_P.TabIndex = 16
+        Me.ALL_N_P.Text = "0"
         Me.ALL_N_P.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'ALL_M_ZI
@@ -240,6 +241,7 @@ Partial Class cash
         Me.ALL_M_P.Name = "ALL_M_P"
         Me.ALL_M_P.Size = New System.Drawing.Size(100, 61)
         Me.ALL_M_P.TabIndex = 19
+        Me.ALL_M_P.Text = "0"
         Me.ALL_M_P.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'column1

@@ -51,14 +51,14 @@ Partial Class balance
         Me.找回 = New System.Windows.Forms.Label()
         Me.Label12 = New System.Windows.Forms.Label()
         Me.PA_B_B = New System.Windows.Forms.Label()
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.Yes = New System.Windows.Forms.PictureBox()
         CType(Me.column, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ALL_M.SuspendLayout()
         Me.VIP_M.SuspendLayout()
         Me.PA_M.SuspendLayout()
         Me.AC_P.SuspendLayout()
         Me.PA_BACK.SuspendLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.Yes, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'column
@@ -353,22 +353,22 @@ Partial Class balance
         Me.PA_B_B.Size = New System.Drawing.Size(415, 48)
         Me.PA_B_B.TabIndex = 4
         '
-        'PictureBox1
+        'Yes
         '
-        Me.PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), System.Drawing.Image)
-        Me.PictureBox1.Location = New System.Drawing.Point(376, 388)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(160, 48)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox1.TabIndex = 8
-        Me.PictureBox1.TabStop = False
+        Me.Yes.Image = CType(resources.GetObject("Yes.Image"), System.Drawing.Image)
+        Me.Yes.Location = New System.Drawing.Point(376, 388)
+        Me.Yes.Name = "Yes"
+        Me.Yes.Size = New System.Drawing.Size(160, 48)
+        Me.Yes.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.Yes.TabIndex = 8
+        Me.Yes.TabStop = False
         '
         'balance
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(680, 480)
-        Me.Controls.Add(Me.PictureBox1)
+        Me.Controls.Add(Me.Yes)
         Me.Controls.Add(Me.PA_BACK)
         Me.Controls.Add(Me.AC_P)
         Me.Controls.Add(Me.PA_M)
@@ -389,7 +389,7 @@ Partial Class balance
         Me.AC_P.ResumeLayout(False)
         Me.AC_P.PerformLayout()
         Me.PA_BACK.ResumeLayout(False)
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.Yes, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -421,5 +421,5 @@ Partial Class balance
     Friend WithEvents PA_B_B As System.Windows.Forms.Label
     Friend WithEvents AC_P_I As System.Windows.Forms.TextBox
     Friend WithEvents AC_P_B As System.Windows.Forms.Label
-    Friend WithEvents PictureBox1 As System.Windows.Forms.PictureBox
+    Friend WithEvents Yes As System.Windows.Forms.PictureBox
 End Class

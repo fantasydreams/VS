@@ -232,7 +232,7 @@ Public Class cash
     Private Sub selectFromBaseData()
         If ID_P_A_I.Text = "" Then
         Else
-            Dim str As String = "select name ,shopID,price from goods where id = " + ID_P_A_I.Text.ToString()
+            Dim str As String = "select name ,shopID,price from goods where code = '" + ID_P_A_I.Text.ToString() + "'"
             Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
             Dr.CommandType = CommandType.Text
             Dim MR As MySqlDataReader
@@ -263,6 +263,12 @@ Public Class cash
                 temp = MR.Item(1)
                 lineNum += 1
                 ID_P_A_I.Text = ""
+            Else  'print the error msg
+                Dim form As New MSG
+                form.head.Text = "提示"
+                form.msgP.Text = "仓库不存在此商品"
+                form.Show()
+                ID_P_A_I.Text = ""
             End If
             MR.Close()
             If flag = True Then
@@ -271,8 +277,8 @@ Public Class cash
                 calculatePronum()
             End If
         End If
-
     End Sub
+
 
     '重新调整datagirdview的颜色
     Private Sub ExchageBackColor(ByVal int As Integer)
@@ -335,25 +341,27 @@ Public Class cash
     End Sub
 
 
-    Private Sub form_keypress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
-        If e.KeyChar = ChrW(27) Then
+
+    Private Sub form_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.KeyCode = Keys.Escape Then
             Dim messge As New MSG
             messge.head.Text = "即将退出系统"
             messge.msgP.Text = "按下enter退出系统，esc返回..."
             messge.Show()
         End If
-        If e.KeyChar = Chr(115) Then
+        If e.KeyCode = Keys.F4 Then
             Dim messge As New MSG
             messge.head.Text = "F4"
             messge.msgP.Text = "你按下了F4"
             messge.Show()
         End If
-        If e.KeyChar = Chr(116) Then
+        If e.KeyCode = Keys.F5 Then
             Dim messge As New MSG
             messge.head.Text = "F5"
             messge.msgP.Text = "你按下了F5"
             messge.Show()
         End If
     End Sub
+
 
 End Class

@@ -119,5 +119,15 @@ Public Class Pur
         Me.Close()
     End Sub
 
+    Private Sub Pur_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+    End Sub
+
+    Private Sub APP_Click(sender As Object, e As EventArgs) Handles APP.Click
+
+    End Sub
+
+    Private Sub ACP_TextChanged(sender As Object, e As EventArgs) Handles ACP.TextChanged
+
+    End Sub
 End Class
