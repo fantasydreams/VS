@@ -1,7 +1,10 @@
-﻿
+﻿Imports System.Threading
 Imports MySql.Data.MySqlClient
+Imports System.IO
 Public Class cash
 
+
+    Dim errorlogTh As Thread
 
     Public lineNum As Integer = 1
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -69,7 +72,8 @@ Public Class cash
         Line.BackColor = Color.FromArgb(&HFFD48181)
         Line.Width = Login.ScreenWidth
 
-        Line_num.Parent = column1
+        column1.Width = Login.ScreenWidth
+        'Line_num.Parent = column1
         Buy_ID.Parent = column1
         P_Name_.Parent = column1
         p_Unit.Parent = column1
@@ -123,7 +127,7 @@ Public Class cash
 
         P_Mon.Location = New Point(P_Price.Left + P_Price.Width, 0)
         P_Mon.Size = P_Name_.Size
-
+        Data.Columns(0).Width = Line_num.Width + 10 * rate
         Data.Columns(1).Width = Buy_ID.Width
         Data.Columns(2).Width = P_Name_.Width
         Data.Columns(3).Width = p_Unit.Width
@@ -362,6 +366,35 @@ Public Class cash
             messge.Show()
         End If
     End Sub
+
+    '错误消息提示
+    Public Sub errorMsg(sender As Object, head As String, info As String)
+        Dim form As New MSG
+        form.head.Text = head
+        form.msgP.Text = info
+        form.Show(sender)
+    End Sub
+
+
+    Private Sub WriteErrorLog(ByVal info As String)
+        If My.Computer.FileSystem.DirectoryExists(".\log") Then
+            IO.File.AppendAllText(".\log\exception.log", My.Computer.Clock.LocalTime + " : " + info + vbCrLf) 'put exception into log file
+        Else
+            My.Computer.FileSystem.CreateDirectory(".\log")
+            IO.File.AppendAllText(".\log\exception.log", My.Computer.Clock.LocalTime + " : " + info + vbCrLf) 'put exception into log file
+            'Dim fsw As New StreamWriter(".\log\exception.log")
+            'fsw.WriteLine(My.Computer.Clock.LocalTime + " : " + info)  'put exception into log file
+        End If
+        errorlogTh.Abort()
+    End Sub
+
+    '创建错误消息写入日志文件线程
+    Public Sub errorlogThread(ByVal errorinfo)
+        ' Dim ThreadStart As ParameterizedThreadStart = New ParameterizedThreadStart(AddressOf WriteErrorLog)
+        errorlogTh = New Thread(AddressOf WriteErrorLog)
+        errorlogTh.Start(errorinfo)
+    End Sub
+
 
 
 End Class

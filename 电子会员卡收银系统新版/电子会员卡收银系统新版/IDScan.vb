@@ -48,7 +48,7 @@ Public Class IDScan
                 Dim form As New MSG
                 form.head.Text = "提示"
                 form.msgP.Text = "未找到相关会员资料"
-                form.Show()
+                form.Show(Me)
                 ID_I.Text = ""
             End If
 
@@ -86,7 +86,7 @@ Public Class IDScan
                             Dim form As New MSG
                             form.head.Text = "error"
                             form.msgP.Text = "没有此会员信息！"
-                            form.Show()
+                            form.Show(Me)
                             ID_I.Text = ""
                         End If
                     End If
@@ -98,7 +98,7 @@ Public Class IDScan
     End Sub
 
     Private Function chooseDatabase()
-        Dim str As String = "select changes,max,score from utos where userID = '" + ID_I.Text + "' and " + " shopID = " + Login.shopID.ToString
+        Dim str As String = "select balance,max,score from utos where user_id = '" + ID_I.Text + "' and " + " shop_id = " + Login.shopID.ToString
         Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
         Dr.CommandType = CommandType.Text
         Try
@@ -113,7 +113,7 @@ Public Class IDScan
                 balance.oldPMP = Double.Parse(MR.Item(0))
                 balance.NumId = ID_I.Text.ToString()
             Else
-                str = "insert into userID,shopID utos values(" + ID_I.Text.ToString + "," + Login.shopID.ToString + "';"
+                str = "insert into user_id,shop_id utos values(" + ID_I.Text.ToString + "," + Login.shopID.ToString + "';"
                 Dim D As MySqlCommand = New MySqlCommand(str, Login.conn)
                 D.CommandType = CommandType.Text
                 D.ExecuteNonQuery()
@@ -122,7 +122,8 @@ Public Class IDScan
             chooseDatabase = True
         Catch ex As Exception
             chooseDatabase = False
-            MsgBox(ex.ToString)
+            cash.errorMsg(Me, "error", "发生了一些错误")
+            cash.errorlogThread(ex.ToString)  'call write exception info to log file
         End Try
     End Function
 
@@ -135,7 +136,7 @@ Public Class IDScan
                     getUserInfo()
                 Else
                     Me.Hide()
-                    balance.Show()
+                    balance.Show(background)
                 End If
             End If
 
@@ -146,24 +147,29 @@ Public Class IDScan
 
     'calculate vip should pay
     Public Sub CalculateVipMon()
-        Dim Money As Double = 0
-        For i = 0 To cash.Data.Rows.Count - 1
-            Dim str As String = "select discount from goods_sale where goodsID = " + cash.Data.Rows(i).Cells(1).Value.ToString
-            Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
-            Dr.CommandType = CommandType.Text
-            Dim MR As MySqlDataReader
-            MR = Dr.ExecuteReader()
-            If MR.HasRows Then
-                MR.Read()
-                Money += Double.Parse(cash.Data.Rows(i).Cells(6).Value.ToString()) * Double.Parse(MR.Item(0).ToString())
-            Else
-                Money += Double.Parse(cash.Data.Rows(i).Cells(6).Value.ToString())
-            End If
-            MR.Close()
-        Next
-        balance.VIP_M_P.Text = Money
-        balance.ALL_M_P.Text = cash.ALL_M_P.Text
-        balance.flag = True
+        Try
+            Dim Money As Double = 0
+            For i = 0 To cash.Data.Rows.Count - 1
+                Dim str As String = "select discount from goods where code = " + cash.Data.Rows(i).Cells(1).Value.ToString
+                Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
+                Dr.CommandType = CommandType.Text
+                Dim MR As MySqlDataReader
+                MR = Dr.ExecuteReader()
+                If MR.HasRows Then
+                    MR.Read()
+                    Money += Double.Parse(cash.Data.Rows(i).Cells(6).Value.ToString()) * Double.Parse(MR.Item(0).ToString())
+                Else
+                    Money += Double.Parse(cash.Data.Rows(i).Cells(6).Value.ToString())
+                End If
+                MR.Close()
+            Next
+            balance.VIP_M_P.Text = Money
+            balance.ALL_M_P.Text = cash.ALL_M_P.Text
+            balance.flag = True
+        Catch ex As Exception
+            cash.errorMsg(Me, "error", "发生了一些错误")
+            balance.flag = False
+        End Try
     End Sub
 
 

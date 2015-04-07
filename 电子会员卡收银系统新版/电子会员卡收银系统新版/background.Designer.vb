@@ -35,6 +35,7 @@ Partial Class background
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "background"
         Me.Opacity = 0.5R
+        Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.ResumeLayout(False)
 

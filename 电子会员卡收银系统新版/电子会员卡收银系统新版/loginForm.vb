@@ -66,6 +66,14 @@ Public Class Login
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         shopGet()  'getshop info
+
+
+        'MsgBox(My.Computer.Clock.LocalTime)
+        'MsgBox(My.Computer.Clock.GmtTime)
+
+        'Dim sw As New StreamWriter(".\log\exception.log")
+
+
     End Sub
 
     Private Sub loginButton_Press(sender As Object, e As EventArgs) Handles loginButton.MouseDown
@@ -116,22 +124,21 @@ Public Class Login
             End If
             If IO.File.Exists(".\config\readme.txt") Then
             Else
-                IO.File.Create(".\config\readme.txt").Close()
-                Dim fsw As New StreamWriter(".\config\readme.txt")
-                fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
-                fsw.Close()
+                IO.File.AppendAllText(".\config\readme.txt", "this folder for the application configuration,don't move or delete or rewite")
+                'Dim fsw As New StreamWriter(".\config\readme.txt")
+                'fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
+                'fsw.Close()
                 'save config date into file
-
-
             End If
 
         Else
             My.Computer.FileSystem.CreateDirectory(".\config")
             IO.File.Create(".\config\data.ini").Close()
-            IO.File.Create(".\config\readme.txt").Close()
-            Dim fsw As New StreamWriter(".\config\readme.txt")
-            fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
-            fsw.Close()
+            IO.File.AppendAllText(".\config\readme.txt", "this folder for the application configuration,don't move or delete or rewite")
+            'IO.File.Create(".\config\readme.txt").Close()
+            'Dim fsw As New StreamWriter(".\config\readme.txt")
+            'fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
+            'fsw.Close()
         End If
     End Sub
 
@@ -278,6 +285,7 @@ Public Class Login
 
     Private Sub form_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.Escape Then
+            conn.Close()  'close data base conncect
             Me.Close()
         End If
        
