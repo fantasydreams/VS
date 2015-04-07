@@ -148,8 +148,8 @@ Public Class cash
                 If ID_P_A_I.Text = "" Then
                     If ID_P_A_I.Text = "0" Then
                     Else
-                        background.Show()
-                        IDScan.Show()
+                        background.Show(Me)  '锁定在本窗口
+                        IDScan.Show(background)
                     End If
                 Else
                     selectData()
@@ -232,7 +232,7 @@ Public Class cash
     Private Sub selectFromBaseData()
         If ID_P_A_I.Text = "" Then
         Else
-            Dim str As String = "select name ,shopID,price from goods where code = '" + ID_P_A_I.Text.ToString() + "'"
+            Dim str As String = "select name ,shop_id,price from goods where code = '" + ID_P_A_I.Text.ToString() + "'"
             Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
             Dr.CommandType = CommandType.Text
             Dim MR As MySqlDataReader
@@ -267,7 +267,7 @@ Public Class cash
                 Dim form As New MSG
                 form.head.Text = "提示"
                 form.msgP.Text = "仓库不存在此商品"
-                form.Show()
+                form.Show(Me)
                 ID_P_A_I.Text = ""
             End If
             MR.Close()

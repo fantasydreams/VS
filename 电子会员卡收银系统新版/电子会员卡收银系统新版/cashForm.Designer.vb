@@ -487,7 +487,6 @@ Partial Class cash
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.KeyPreview = True
         Me.Name = "cash"
-        Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "cash"
         CType(Me.column, System.ComponentModel.ISupportInitialize).EndInit()

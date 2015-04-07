@@ -26,11 +26,11 @@ Public Class Login
         ScreenWidth = Screen.PrimaryScreen.Bounds.Width
         Dim connStr As String
         If Not conn Is Nothing Then conn.Close()
-        connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "112.74.105.67", "ming", "18883285787")
-
         'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"localhost", "root", "lsw19940816")
+        '"112.74.105.67", "ming", "18883285787")
+
+        connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+        "localhost", "root", "lsw19940816")
 
         Try
             conn = New MySqlConnection(connStr)
@@ -229,9 +229,11 @@ Public Class Login
         Else
             'MSGBOX("请检查你的用户名密码！")
             Dim form As New MSG
+
             form.head.Text = "检查数据"
             form.msgP.Text = "请检查你的用户名和密码"
-            form.Show()
+
+            form.Show(Me)
         End If
     End Sub
 
